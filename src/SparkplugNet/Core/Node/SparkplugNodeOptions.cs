@@ -29,6 +29,11 @@ public class SparkplugNodeOptions : SparkplugBaseOptions
 
     // Todo: Check if we still need this.
     /// <summary>
+    /// The default option to add session numbers to device birth and death messages.
+    /// </summary>
+    public const bool DefaultAddSessionNumberToDeviceBirthAndDeath = true;
+
+    /// <summary>
     /// The default option to publish known device metrics on reconnect.
     /// </summary>
     public const bool DefaultPublishKnownDeviceMetricsOnReconnect = true;
@@ -101,6 +106,12 @@ public class SparkplugNodeOptions : SparkplugBaseOptions
     public string EdgeNodeIdentifier { get; set; } = DefaultEdgeNodeIdentifier;
 
     // Todo: Check if we still need this.
+    /// <summary>
+    /// Gets or sets a value indicating whether to add session numbers to device birth and death messages or not.
+    /// </summary>
+    [DefaultValue(DefaultAddSessionNumberToDeviceBirthAndDeath)]
+    public bool AddSessionNumberToDeviceBirthAndDeath { get; set; } = DefaultAddSessionNumberToDeviceBirthAndDeath;
+
     /// <summary>
     /// Gets or sets a value indicating whether to publish known device metrics on reconnect or not.
     /// </summary>
