@@ -267,19 +267,8 @@ public abstract partial class SparkplugNodeBase<T> : SparkplugBase<T> where T : 
         var builder = new MqttClientOptionsBuilder()
             .WithClientId(this.Options.ClientId)
             .WithCredentials(this.Options.UserName, this.Options.Password)
-            .WithProtocolVersion((MqttProtocolVersion)this.Options.MqttProtocolVersion);
-
-        switch (this.Options.MqttProtocolVersion)
-        {
-            case SparkplugMqttProtocolVersion.V311:
-                builder.WithCleanSession(true);
-                break;
-            case SparkplugMqttProtocolVersion.V500:
-                // Todo: Use WithCleanStart when available from release build!
-                builder.WithCleanSession(true);
-                builder.WithSessionExpiryInterval(0);
-                break;
-        }
+            .WithCleanSession(false)
+            .WithProtocolVersion(MqttProtocolVersion.V311);
 
         if (this.Options.UseTls)
         {

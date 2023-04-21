@@ -7,14 +7,14 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace SparkplugNet.VersionB;
+namespace SparkplugNet.VersionA;
 
 /// <inheritdoc cref="SparkplugNodeBase{T}"/>
 /// <summary>
 ///   A class that handles a Sparkplug node.
 /// </summary>
 /// <seealso cref="SparkplugNodeBase{T}"/>
-public class SparkplugNode : SparkplugNodeBase<VersionBData.Metric>
+public class SparkplugNode : SparkplugNodeBase<VersionAData.KuraMetric>
 {
     /// <inheritdoc cref="SparkplugNodeBase{T}"/>
     /// <summary>
@@ -23,7 +23,7 @@ public class SparkplugNode : SparkplugNodeBase<VersionBData.Metric>
     /// <param name="knownMetrics">The known metrics.</param>
     /// <param name="logger">The logger.</param>
     /// <seealso cref="SparkplugNodeBase{T}"/>
-    public SparkplugNode(IEnumerable<VersionBData.Metric> knownMetrics, ILogger? logger = null) : base(knownMetrics, logger)
+    public SparkplugNode(IEnumerable<VersionAData.KuraMetric> knownMetrics, ILogger? logger = null) : base(knownMetrics, logger)
     {
     }
 
@@ -39,13 +39,13 @@ public class SparkplugNode : SparkplugNodeBase<VersionBData.Metric>
     }
 
     /// <summary>
-    /// Publishes version B metrics for a node.
+    /// Publishes version A metrics for a node.
     /// </summary>
     /// <param name="metrics">The metrics.</param>
     /// <exception cref="ArgumentNullException">Thrown if the options are null.</exception>
     /// <exception cref="Exception">Thrown if an invalid metric type was specified.</exception>
     /// <returns>A <see cref="MqttClientPublishResult"/>.</returns>
-    protected override async Task<MqttClientPublishResult> PublishMessage(IEnumerable<VersionBData.Metric> metrics)
+    protected override async Task<MqttClientPublishResult> PublishMessage(IEnumerable<VersionAData.KuraMetric> metrics)
     {
         if (this.Options is null)
         {
@@ -54,7 +54,7 @@ public class SparkplugNode : SparkplugNodeBase<VersionBData.Metric>
 
         if (this.KnownMetrics is null)
         {
-            throw new ArgumentNullException(nameof(this.KnownMetrics), "The KnownMetrics aren't set properly.");
+            throw new Exception("Invalid metric type specified for version A metric.");
         }
 
         // Get the data message.
@@ -79,7 +79,7 @@ public class SparkplugNode : SparkplugNodeBase<VersionBData.Metric>
     }
 
     /// <summary>
-    /// Called when a node message was received.
+    /// Called when the node message is received.
     /// </summary>
     /// <param name="topic">The topic.</param>
     /// <param name="payload">The payload.</param>
@@ -87,13 +87,13 @@ public class SparkplugNode : SparkplugNodeBase<VersionBData.Metric>
     /// <returns>A <see cref="Task"/> representing any asynchronous operation.</returns>
     protected override async Task OnMessageReceived(SparkplugMessageTopic topic, byte[] payload)
     {
-        var payloadVersionB = PayloadHelper.Deserialize<VersionBProtoBuf.ProtoBufPayload>(payload);
+        var payloadVersionA = PayloadHelper.Deserialize<VersionAProtoBuf.ProtoBufPayload>(payload);
 
-        if (payloadVersionB is not null)
+        if (payloadVersionA is not null)
         {
-            var convertedPayload = PayloadConverter.ConvertVersionBPayload(payloadVersionB);
+            var convertedPayload = PayloadConverter.ConvertVersionAPayload(payloadVersionA);
 
-            if (convertedPayload is not VersionBData.Payload convertedPayloadVersionB)
+            if (convertedPayload is not VersionAData.Payload convertedPayloadVersionA)
             {
                 throw new InvalidCastException("The metric cast didn't work properly.");
             }
@@ -103,9 +103,9 @@ public class SparkplugNode : SparkplugNodeBase<VersionBData.Metric>
                 case SparkplugMessageType.DeviceCommand:
                     if (!string.IsNullOrWhiteSpace(topic.DeviceIdentifier))
                     {
-                        foreach (var metric in convertedPayloadVersionB.Metrics)
+                        foreach (var metric in convertedPayloadVersionA.Metrics)
                         {
-                            if (metric is VersionBData.Metric convertedMetric)
+                            if (metric is VersionAData.KuraMetric convertedMetric)
                             {
                                 await this.FireDeviceCommandReceivedAsync(topic.DeviceIdentifier, convertedMetric);
                             }
@@ -115,9 +115,9 @@ public class SparkplugNode : SparkplugNodeBase<VersionBData.Metric>
                     break;
 
                 case SparkplugMessageType.NodeCommand:
-                    foreach (var metric in convertedPayloadVersionB.Metrics)
+                    foreach (var metric in convertedPayloadVersionA.Metrics)
                     {
-                        if (metric is VersionBData.Metric convertedMetric)
+                        if (metric is VersionAData.KuraMetric convertedMetric)
                         {
                             await this.FireNodeCommandReceivedAsync(convertedMetric);
                         }
