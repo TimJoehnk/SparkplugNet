@@ -88,6 +88,22 @@ public abstract partial class SparkplugNodeBase<T> : SparkplugBase<T> where T : 
     /// <returns>A <see cref="Task"/> representing any asynchronous operation.</returns>
     public async Task Stop()
     {
+        if (this.Options is null)
+        {
+            throw new ArgumentNullException(nameof(this.Options), "The options aren't set properly.");
+        }
+
+        // Send node death on gracefull disconnect
+        var nodeDeathMessage = this.MessageGenerator.GetSparkPlugNodeDeathMessage(
+            this.NameSpace,
+            this.Options.GroupIdentifier,
+            this.Options.EdgeNodeIdentifier,
+            this.LastSessionNumber,
+            this.Options.AddSessionNumberToDeviceBirthAndDeath);
+
+        this.Options.CancellationToken ??= SystemCancellationToken.None;
+        await this.Client.PublishAsync(nodeDeathMessage, this.Options.CancellationToken.Value);
+
         this.IsRunning = false;
         await this.Client.DisconnectAsync();
     }
@@ -259,7 +275,8 @@ public abstract partial class SparkplugNodeBase<T> : SparkplugBase<T> where T : 
             this.NameSpace,
             this.Options.GroupIdentifier,
             this.Options.EdgeNodeIdentifier,
-            this.LastSessionNumber);
+            this.LastSessionNumber,
+            this.Options.AddSessionNumberToDeviceBirthAndDeath);
 
         // Build up the MQTT client and connect.
         this.Options.CancellationToken ??= SystemCancellationToken.None;

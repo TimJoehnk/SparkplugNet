@@ -33,6 +33,11 @@ public class SparkplugNodeOptions : SparkplugBaseOptions
     public const bool DefaultAddSessionNumberToDataMessages = true;
 
     /// <summary>
+    /// The default option to add session numbers to device birth and death messages.
+    /// </summary>
+    public const bool DefaultAddSessionNumberToDeviceBirthAndDeath = true;
+
+    /// <summary>
     /// The default option to publish known device metrics on reconnect.
     /// </summary>
     public const bool DefaultPublishKnownDeviceMetricsOnReconnect = true;
@@ -197,6 +202,12 @@ public class SparkplugNodeOptions : SparkplugBaseOptions
     /// </summary>
     [DefaultValue(DefaultAddSessionNumberToDataMessages)]
     public bool AddSessionNumberToDataMessages { get; set; } = DefaultAddSessionNumberToDataMessages;
+
+    /// <summary>
+    /// Gets or sets a value indicating whether to add session numbers to device birth and death messages or not.
+    /// </summary>
+    [DefaultValue(DefaultAddSessionNumberToDeviceBirthAndDeath)]
+    public bool AddSessionNumberToDeviceBirthAndDeath { get; set; } = DefaultAddSessionNumberToDeviceBirthAndDeath;
 
     /// <summary>
     /// Gets or sets a value indicating whether to publish known device metrics on reconnect or not.

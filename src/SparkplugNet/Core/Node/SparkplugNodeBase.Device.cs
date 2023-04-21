@@ -50,7 +50,8 @@ public partial class SparkplugNodeBase<T>
             knownMetrics,
             this.LastSequenceNumber,
             this.LastSessionNumber,
-            DateTimeOffset.Now);
+            DateTimeOffset.Now,
+            this.Options.AddSessionNumberToDeviceBirthAndDeath);
 
         // Increment the sequence number.
         this.IncrementLastSequenceNumber();
