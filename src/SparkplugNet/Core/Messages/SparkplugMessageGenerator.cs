@@ -504,8 +504,8 @@ internal class SparkplugMessageGenerator
                 new VersionBData.Metric
                 {
                     Name = Constants.SessionNumberMetricName,
-                    LongValue = (ulong)sessionSequenceNumber,
-                    ValueCase = (uint)VersionBData.DataType.Int64
+                    ULongValue = (ulong)sessionSequenceNumber,
+                    ValueCase = (uint)VersionBData.DataType.UInt64
                 }
             });
         }
