@@ -98,8 +98,7 @@ public abstract partial class SparkplugNodeBase<T> : SparkplugBase<T> where T : 
             this.NameSpace,
             this.Options.GroupIdentifier,
             this.Options.EdgeNodeIdentifier,
-            this.LastSessionNumber,
-            this.Options.AddSessionNumberToDeviceBirthAndDeath);
+            this.LastSessionNumber);
 
         this.Options.CancellationToken ??= SystemCancellationToken.None;
         await this.Client.PublishAsync(nodeDeathMessage, this.Options.CancellationToken.Value);
@@ -275,8 +274,7 @@ public abstract partial class SparkplugNodeBase<T> : SparkplugBase<T> where T : 
             this.NameSpace,
             this.Options.GroupIdentifier,
             this.Options.EdgeNodeIdentifier,
-            this.LastSessionNumber,
-            this.Options.AddSessionNumberToDeviceBirthAndDeath);
+            this.LastSessionNumber);
 
         // Build up the MQTT client and connect.
         this.Options.CancellationToken ??= SystemCancellationToken.None;
@@ -392,7 +390,7 @@ public abstract partial class SparkplugNodeBase<T> : SparkplugBase<T> where T : 
         {
             foreach (var device in this.KnownDevices)
             {
-                await this.PublishDeviceBirthMessage(device.Value.Metrics, device.Key);
+                await this.PublishDeviceBirthMessage(device.Value, device.Key);
             }
         }
     }

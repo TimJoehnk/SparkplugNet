@@ -29,7 +29,18 @@ public partial class SparkplugNodeBase<T>
     /// <exception cref="ArgumentNullException">Thrown if the options are null.</exception>
     /// <exception cref="Exception">Thrown if the MQTT client is not connected.</exception>
     /// <returns>A <see cref="MqttClientPublishResult"/>.</returns>
-    public async Task<MqttClientPublishResult> PublishDeviceBirthMessage(List<T> knownMetrics, string deviceIdentifier)
+    public Task<MqttClientPublishResult> PublishDeviceBirthMessage(List<T> knownMetrics, string deviceIdentifier) =>
+        this.PublishDeviceBirthMessage(new KnownMetricStorage(knownMetrics), deviceIdentifier);
+
+    /// <summary>
+    /// Publishes a device birth message to the MQTT broker.
+    /// </summary>
+    /// <param name="knownMetricsStorage">The known metrics storage.</param>
+    /// <param name="deviceIdentifier">The device identifier.</param>
+    /// <exception cref="ArgumentNullException">Thrown if the options are null.</exception>
+    /// <exception cref="Exception">Thrown if the MQTT client is not connected.</exception>
+    /// <returns>A <see cref="MqttClientPublishResult"/>.</returns>
+    public async Task<MqttClientPublishResult> PublishDeviceBirthMessage(KnownMetricStorage knownMetricsStorage, string deviceIdentifier)
     {
         if (this.Options is null)
         {
@@ -47,7 +58,7 @@ public partial class SparkplugNodeBase<T>
             this.Options.GroupIdentifier,
             this.Options.EdgeNodeIdentifier,
             deviceIdentifier,
-            knownMetrics,
+            knownMetricsStorage.Values,
             this.LastSequenceNumber,
             this.LastSessionNumber,
             DateTimeOffset.Now,
@@ -57,10 +68,10 @@ public partial class SparkplugNodeBase<T>
         this.IncrementLastSequenceNumber();
 
         // Add the known metrics to the known devices.
-        this.KnownDevices.TryAdd(deviceIdentifier, new KnownMetricStorage(knownMetrics));
+        this.KnownDevices.TryAdd(deviceIdentifier, knownMetricsStorage);
 
         // Invoke the device birth event.
-        await this.FireDeviceBirthPublishingAsync(deviceIdentifier, knownMetrics);
+        await this.FireDeviceBirthPublishingAsync(deviceIdentifier, knownMetricsStorage.Values);
 
         // Publish the message.
         this.Options.CancellationToken ??= SystemCancellationToken.None;
@@ -128,7 +139,8 @@ public partial class SparkplugNodeBase<T>
             deviceIdentifier,
             this.LastSequenceNumber,
             this.LastSessionNumber,
-            DateTimeOffset.Now);
+            DateTimeOffset.Now,
+            this.Options.AddSessionNumberToDeviceBirthAndDeath);
 
         // Increment the sequence number.
         this.IncrementLastSequenceNumber();

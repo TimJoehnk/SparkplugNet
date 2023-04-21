@@ -183,7 +183,6 @@ internal class SparkplugMessageGenerator
     /// <param name="groupIdentifier">The group identifier.</param>
     /// <param name="edgeNodeIdentifier">The edge node identifier.</param>
     /// <param name="sessionNumber">The session number.</param>
-    /// <param name="addSessionNumberToDeviceDeath">A value indicating whether to add the 'SessionNumber' metric or not.</param>
     /// <exception cref="ArgumentException">Thrown if the group identifier or the edge node identifier is invalid.</exception>
     /// <exception cref="ArgumentOutOfRangeException">Thrown if the namespace is out of range.</exception>
     /// <returns>A new NDEATH <see cref="MqttApplicationMessage"/>.</returns>
@@ -191,8 +190,7 @@ internal class SparkplugMessageGenerator
         SparkplugNamespace nameSpace,
         string groupIdentifier,
         string edgeNodeIdentifier,
-        long sessionNumber,
-        bool addSessionNumberToDeviceDeath)
+        long sessionNumber)
     {
         if (!groupIdentifier.IsIdentifierValid())
         {
@@ -210,14 +208,14 @@ internal class SparkplugMessageGenerator
                 {
                     var metrics = new List<VersionAData.KuraMetric>();
                     return this.GetSparkPlugNodeDeathA(nameSpace, groupIdentifier, edgeNodeIdentifier,
-                        AddSessionNumberToMetrics(metrics, sessionNumber, !addSessionNumberToDeviceDeath));
+                        AddSessionNumberToMetrics(metrics, sessionNumber));
                 }
 
             case SparkplugNamespace.VersionB:
                 {
                     var metrics = new List<VersionBData.Metric>();
                     return this.GetSparkPlugNodeDeathB(nameSpace, groupIdentifier, edgeNodeIdentifier,
-                        AddSessionNumberToMetrics(metrics, sessionNumber, !addSessionNumberToDeviceDeath));
+                        AddSessionNumberToMetrics(metrics, sessionNumber));
                 }
 
             default:
@@ -235,6 +233,7 @@ internal class SparkplugMessageGenerator
     /// <param name="sequenceNumber">The sequence number.</param>
     /// <param name="sessionNumber">The session number.</param>
     /// <param name="dateTime">The date time.</param>
+    /// <param name="addSessionNumberToDeviceDeath">A value indicating whether to add the 'SessionNumber' metric or not.</param>
     /// <exception cref="ArgumentException">Thrown if the group identifier or the edge node identifier or the device identifier is invalid.</exception>
     /// <exception cref="ArgumentOutOfRangeException">Thrown if the namespace is out of range.</exception>
     /// <returns>A new DDEATH <see cref="MqttApplicationMessage"/>.</returns>
@@ -245,7 +244,8 @@ internal class SparkplugMessageGenerator
         string deviceIdentifier,
         int sequenceNumber,
         long sessionNumber,
-        DateTimeOffset dateTime)
+        DateTimeOffset dateTime,
+        bool addSessionNumberToDeviceDeath)
     {
         if (!groupIdentifier.IsIdentifierValid())
         {
@@ -268,14 +268,14 @@ internal class SparkplugMessageGenerator
                 {
                     var metrics = new List<VersionAData.KuraMetric>();
                     return this.GetSparkPlugDeviceDeathA(nameSpace, groupIdentifier, edgeNodeIdentifier, deviceIdentifier,
-                        AddSessionNumberToMetrics(metrics, sessionNumber), dateTime);
+                        AddSessionNumberToMetrics(metrics, sessionNumber, !addSessionNumberToDeviceDeath), dateTime);
                 }
 
             case SparkplugNamespace.VersionB:
                 {
                     var metrics = new List<VersionBData.Metric>();
                     return this.GetSparkPlugDeviceDeathB(nameSpace, groupIdentifier, edgeNodeIdentifier, deviceIdentifier,
-                        AddSessionNumberToMetrics(metrics, sessionNumber), sequenceNumber, dateTime);
+                        AddSessionNumberToMetrics(metrics, sessionNumber, !addSessionNumberToDeviceDeath), sequenceNumber, dateTime);
                 }
 
             default:
