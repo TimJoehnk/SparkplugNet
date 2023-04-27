@@ -298,7 +298,7 @@ internal class SparkplugMessageGenerator
     /// <exception cref="ArgumentException">Thrown if the group identifier or the edge node identifier is invalid.</exception>
     /// <exception cref="ArgumentOutOfRangeException">Thrown if the namespace is out of range.</exception>
     /// <returns>A new NDATA <see cref="MqttApplicationMessage"/>.</returns>
-    public MqttApplicationMessage GetSparkPlugNodeDataMessage<T>(
+    public MqttApplicationMessage? GetSparkPlugNodeDataMessage<T>(
         SparkplugNamespace nameSpace,
         string groupIdentifier,
         string edgeNodeIdentifier,
@@ -323,18 +323,34 @@ internal class SparkplugMessageGenerator
         {
             case SparkplugNamespace.VersionA:
                 {
-                    var newMetrics = metrics as IEnumerable<VersionAData.KuraMetric>
-                                     ?? new List<VersionAData.KuraMetric>();
-                    return this.GetSparkPlugNodeDataA(nameSpace, groupIdentifier, edgeNodeIdentifier,
+                    var castedMetrics = metrics as IEnumerable<VersionAData.KuraMetric>;
+                    var newMetrics = castedMetrics != null ? new List<VersionAData.KuraMetric>(castedMetrics)
+                                     : Enumerable.Empty<VersionAData.KuraMetric>();
+                    if (newMetrics.Any())
+                    {
+                        return this.GetSparkPlugNodeDataA(nameSpace, groupIdentifier, edgeNodeIdentifier,
                         AddSessionNumberToMetrics(newMetrics, sessionNumber, !addSessionNumbers), dateTime);
+                    }
+                    else
+                    {
+                        return null;
+                    }
                 }
 
             case SparkplugNamespace.VersionB:
                 {
-                    var newMetrics = metrics as IEnumerable<VersionBData.Metric>
-                                     ?? new List<VersionBData.Metric>();
-                    return this.GetSparkPlugNodeDataB(nameSpace, groupIdentifier, edgeNodeIdentifier,
-                        AddSessionNumberToMetrics(newMetrics, sessionNumber, !addSessionNumbers), sequenceNumber, dateTime);
+                    var castedMetrics = metrics as IEnumerable<VersionBData.Metric>;
+                    var newMetrics = castedMetrics != null ? new List<VersionBData.Metric>(castedMetrics)
+                                     : Enumerable.Empty<VersionBData.Metric>();
+                    if (newMetrics.Any())
+                    {
+                        return this.GetSparkPlugNodeDataB(nameSpace, groupIdentifier, edgeNodeIdentifier,
+                            AddSessionNumberToMetrics(newMetrics, sessionNumber, !addSessionNumbers), sequenceNumber, dateTime);
+                    }
+                    else
+                    {
+                        return null;
+                    }
                 }
 
             default:

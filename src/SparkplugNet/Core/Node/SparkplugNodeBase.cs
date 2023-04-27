@@ -115,7 +115,7 @@ public abstract partial class SparkplugNodeBase<T> : SparkplugBase<T> where T : 
     /// <exception cref="Exception">Thrown if the MQTT client is not connected or an invalid metric type was specified.</exception>
     /// <exception cref="ArgumentOutOfRangeException">Thrown if the namespace is out of range.</exception>
     /// <returns>A <see cref="MqttClientPublishResult"/>.</returns>
-    public async Task<MqttClientPublishResult> PublishMetrics(IEnumerable<T> metrics)
+    public async Task<MqttClientPublishResult?> PublishMetrics(IEnumerable<T> metrics)
     {
         if (this.Options is null)
         {
@@ -137,7 +137,7 @@ public abstract partial class SparkplugNodeBase<T> : SparkplugBase<T> where T : 
     /// <exception cref="ArgumentNullException">Thrown if the options are null.</exception>
     /// <exception cref="Exception">Thrown if an invalid metric type was specified.</exception>
     /// <returns>A <see cref="MqttClientPublishResult"/>.</returns>
-    protected abstract Task<MqttClientPublishResult> PublishMessage(IEnumerable<T> metrics);
+    protected abstract Task<MqttClientPublishResult?> PublishMessage(IEnumerable<T> metrics);
 
     /// <summary>
     /// Called when the message is received.

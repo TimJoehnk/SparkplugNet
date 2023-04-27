@@ -45,7 +45,7 @@ public class SparkplugNode : SparkplugNodeBase<VersionBData.Metric>
     /// <exception cref="ArgumentNullException">Thrown if the options are null.</exception>
     /// <exception cref="Exception">Thrown if an invalid metric type was specified.</exception>
     /// <returns>A <see cref="MqttClientPublishResult"/>.</returns>
-    protected override async Task<MqttClientPublishResult> PublishMessage(IEnumerable<VersionBData.Metric> metrics)
+    protected override async Task<MqttClientPublishResult?> PublishMessage(IEnumerable<VersionBData.Metric> metrics)
     {
         if (this.Options is null)
         {
@@ -67,15 +67,19 @@ public class SparkplugNode : SparkplugNodeBase<VersionBData.Metric>
             this.LastSessionNumber,
             DateTimeOffset.Now,
             this.Options.AddSessionNumberToDataMessages);
+        if (dataMessage is not null)
+        {
+            // Debug output.
+            this.Logger?.Debug("NDATA Message: {@DataMessage}", dataMessage);
 
-        // Debug output.
-        this.Logger?.Debug("NDATA Message: {@DataMessage}", dataMessage);
+            // Increment the sequence number.
+            this.IncrementLastSequenceNumber();
 
-        // Increment the sequence number.
-        this.IncrementLastSequenceNumber();
+            // Publish the message.
+            return await this.Client.PublishAsync(dataMessage);
+        }
 
-        // Publish the message.
-        return await this.Client.PublishAsync(dataMessage);
+        return null;
     }
 
     /// <summary>

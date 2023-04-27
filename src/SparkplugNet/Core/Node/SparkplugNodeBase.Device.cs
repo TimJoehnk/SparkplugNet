@@ -87,7 +87,7 @@ public partial class SparkplugNodeBase<T>
     /// <exception cref="Exception">Thrown if the MQTT client is not connected or the device is unknown or an invalid metric type was specified.</exception>
     /// <exception cref="ArgumentOutOfRangeException">Thrown if the namespace is out of range.</exception>
     /// <returns>A <see cref="MqttClientPublishResult"/>.</returns>
-    public Task<MqttClientPublishResult> PublishDeviceData(IEnumerable<T> metrics, string deviceIdentifier)
+    public Task<MqttClientPublishResult?> PublishDeviceData(IEnumerable<T> metrics, string deviceIdentifier)
     {
         if (this.Options is null)
         {
@@ -162,7 +162,7 @@ public partial class SparkplugNodeBase<T>
     /// <exception cref="ArgumentNullException">Thrown if the options are null.</exception>
     /// <exception cref="Exception">Thrown if the device is unknown or an invalid metric type was specified.</exception>
     /// <returns>A <see cref="MqttClientPublishResult"/>.</returns>
-    protected virtual async Task<MqttClientPublishResult> PublishMessageForDevice(IEnumerable<T> metrics, string deviceIdentifier)
+    protected virtual async Task<MqttClientPublishResult?> PublishMessageForDevice(IEnumerable<T> metrics, string deviceIdentifier)
     {
         if (this.Options is null)
         {
@@ -181,20 +181,25 @@ public partial class SparkplugNodeBase<T>
 
         // Get the data message.
         var dataMessage = this.MessageGenerator.GetSparkPlugDeviceDataMessage(
-            this.NameSpace,
-            this.Options.GroupIdentifier,
-            this.Options.EdgeNodeIdentifier,
-            deviceIdentifier,
-            deviceMetricStorage.FilterOutgoingMetrics(metrics),
-            this.LastSequenceNumber,
-            this.LastSessionNumber,
-            DateTimeOffset.Now,
-            this.Options.AddSessionNumberToDataMessages);
+        this.NameSpace,
+        this.Options.GroupIdentifier,
+        this.Options.EdgeNodeIdentifier,
+        deviceIdentifier,
+        deviceMetricStorage.FilterOutgoingMetrics(metrics),
+        this.LastSequenceNumber,
+        this.LastSessionNumber,
+        DateTimeOffset.Now,
+        this.Options.AddSessionNumberToDataMessages);
 
-        // Increment the sequence number.
-        this.IncrementLastSequenceNumber();
+        if (dataMessage is not null)
+        {
+            // Increment the sequence number.
+            this.IncrementLastSequenceNumber();
 
-        // Publish the message.
-        return await this.Client.PublishAsync(dataMessage);
+            // Publish the message.
+            return await this.Client.PublishAsync(dataMessage);
+        }
+
+        return null;
     }
 }
