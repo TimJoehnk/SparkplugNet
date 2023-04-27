@@ -148,7 +148,7 @@ public partial class SparkplugBase<T> : ISparkplugConnection where T : IMetric, 
     /// </summary>
     internal void IncrementLastSessionNumber()
     {
-        if (this.LastSessionNumber == long.MaxValue)
+        if (this.LastSessionNumber == 255)
         {
             this.LastSessionNumber = 0;
         }

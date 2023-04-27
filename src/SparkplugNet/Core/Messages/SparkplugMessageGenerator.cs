@@ -122,7 +122,7 @@ internal class SparkplugMessageGenerator
     /// <param name="sequenceNumber">The sequence number.</param>
     /// <param name="sessionNumber">The session number.</param>
     /// <param name="dateTime">The date time.</param>
-    /// <param name="addSessionNumberToDeviceDeath">A value indicating whether to add the 'SessionNumber' metric or not.</param>
+    /// <param name="addSessionNumberToBirthMessage">A value indicating whether to add the 'SessionNumber' metric or not.</param>
     /// <exception cref="ArgumentException">Thrown if the group identifier or the edge node identifier or the device identifier is invalid.</exception>
     /// <exception cref="ArgumentOutOfRangeException">Thrown if the namespace is out of range.</exception>
     /// <returns>A new DBIRTH <see cref="MqttApplicationMessage"/>.</returns>
@@ -547,7 +547,7 @@ internal class SparkplugMessageGenerator
         bool skipSessionSequenceNumber = false)
     {
         // The session sequence number in the message is disabled.
-        if (skipSessionSequenceNumber) 
+        if (skipSessionSequenceNumber)
         {
             return metrics;
         }
@@ -589,8 +589,8 @@ internal class SparkplugMessageGenerator
                 new VersionBData.Metric
                 {
                     Name = Constants.SessionNumberMetricName,
-                    ULongValue = (ulong)sessionSequenceNumber,
-                    ValueCase = (uint)VersionBData.DataType.UInt64
+                    LongValue = sessionSequenceNumber,
+                    ValueCase = (uint)VersionBData.DataType.Int64
                 }
             });
         }
