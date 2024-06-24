@@ -58,6 +58,8 @@ public class SparkplugNodeSequentialTest
             MqttServerUnderTest.ScadaHostIdentifier,
             GroupIdentifier,
             EdgeNodeIdentifier,
+            MqttProtocolVersion.V311,
+            MqttQualityOfServiceLevel.AtMostOnce,
             TimeSpan.FromSeconds(30),
             null,
             null,
@@ -125,8 +127,8 @@ public class SparkplugNodeSequentialTest
         var testMetrics = new List<Metric>
         {
             new () { Name = "General/Name", Timestamp = unixNow, ValueCase = (uint)DataType.String, StringValue = "Some Name" },
-            new () { Name = "General/Some Int Value", Timestamp = unixNow, ValueCase = (uint)DataType.Int64, LongValue = (ulong)random.Next(0, int.MaxValue) },
-            new () { Name = "General/Aggregates/Some Int Value", Timestamp = unixNow, ValueCase = (uint)DataType.Int64, LongValue = (ulong)random.Next(0, int.MaxValue) }
+            new () { Name = "General/Some Int Value", Timestamp = unixNow, ValueCase = (uint)DataType.Int64, LongValue = random.Next(0, int.MaxValue) },
+            new () { Name = "General/Aggregates/Some Int Value", Timestamp = unixNow, ValueCase = (uint)DataType.Int64, LongValue = random.Next(0, int.MaxValue) }
         };
 
         return testMetrics;
@@ -147,7 +149,7 @@ public class SparkplugNodeSequentialTest
             Name = "General/Extra Metric",
             Timestamp = unixUtcNow,
             ValueCase = (uint)DataType.Int64,
-            LongValue = (ulong)random.Next(0, int.MaxValue)
+            LongValue = random.Next(0, int.MaxValue)
         });
 
         foreach (var metric in newMetrics)
@@ -171,12 +173,12 @@ public class SparkplugNodeSequentialTest
                 case (int)DataType.UInt16:
                 case (int)DataType.Int32:
                 case (int)DataType.UInt32:
-                    metric.IntValue = (uint)random.Next(0, int.MaxValue);
+                    metric.IntValue = random.Next(0, int.MaxValue);
                     break;
                 case (int)DataType.Int64:
                 case (int)DataType.UInt64:
                 case (int)DataType.DateTime:
-                    metric.LongValue = (ulong)random.Next(0, int.MaxValue);
+                    metric.LongValue = random.Next(0, int.MaxValue);
                     break;
                 case (int)DataType.Float:
                     metric.FloatValue = random.Next(0, int.MaxValue);
