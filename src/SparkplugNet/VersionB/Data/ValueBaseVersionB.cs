@@ -207,7 +207,8 @@ public abstract class ValueBaseVersionB : ValueBase<VersionBDataTypeEnum>
                 this.StringValue = value.ConvertOrDefaultTo<string>();
                 break;
             case VersionBDataTypeEnum.DateTime:
-                this.ULongValue = (ulong)new DateTimeOffset(value.ConvertTo<DateTime>()).ToUnixTimeMilliseconds();
+                if (value is not null)
+                    this.ULongValue = (ulong)new DateTimeOffset(value.ConvertTo<DateTime>()).ToUnixTimeMilliseconds();
                 break;
             default:
                 throw new NotImplementedException($"Type {dataType} is not supported yet");
