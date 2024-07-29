@@ -349,7 +349,14 @@ public abstract partial class SparkplugNodeBase<T> : SparkplugBase<T> where T : 
         // Debug output.
         this.Logger?.Debug("CONNECT Message: {@ClientOptions}.", this.ClientOptions);
 
-        await this.Client.ConnectAsync(this.ClientOptions, this.Options.CancellationToken.Value);
+        if (!this.Client.IsConnected)
+        {
+            await this.Client.ConnectAsync(this.ClientOptions, this.Options.CancellationToken.Value);
+        }
+        else
+        {
+            this.DecrementLastSessionNumber();
+        }
     }
 
     /// <summary>

@@ -157,4 +157,19 @@ public partial class SparkplugBase<T> : ISparkplugConnection where T : IMetric, 
             this.LastSessionNumber++;
         }
     }
+
+    /// <summary>
+    /// Decrements the last session number.
+    /// </summary>
+    internal void DecrementLastSessionNumber()
+    {
+        if (this.LastSessionNumber == 0)
+        {
+            this.LastSessionNumber = 255;
+        }
+        else
+        {
+            this.LastSessionNumber--;
+        }
+    }
 }
