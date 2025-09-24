@@ -17,7 +17,7 @@ public abstract class SparkplugBaseOptions
     /// <summary>
     /// Returns a <see cref="MqttClientOptionsBuilderTlsParameters"/> instance or null 
     /// </summary>
-    public delegate MqttClientOptionsBuilderTlsParameters? GetTlsParametersDelegate();
+    public delegate MqttClientTlsOptions? GetTlsParametersDelegate();
 
     /// <summary>
     /// The default broker.
@@ -83,7 +83,7 @@ public abstract class SparkplugBaseOptions
         string scadaHostIdentifier,
         TimeSpan reconnectInterval,
         GetTlsParametersDelegate? getTlsParameters = null,
-        MqttClientOptionsBuilderWebSocketParameters? webSocketParameters = null,
+        Action<MqttClientWebSocketOptionsBuilder>? webSocketParameters = null,
         MqttClientWebSocketProxyOptions? proxyOptions = null)
     {
         this.BrokerAddress = brokerAddress;
@@ -151,7 +151,7 @@ public abstract class SparkplugBaseOptions
     /// </summary>
     [TypeConverter(typeof(ExpandableObjectConverter))]
     [DefaultValue(null)]
-    public MqttClientOptionsBuilderWebSocketParameters? WebSocketParameters { get; set; }
+    public Action<MqttClientWebSocketOptionsBuilder>? WebSocketParameters { get; set; }
 
     /// <summary>
     /// Gets or sets the proxy options.

@@ -9,6 +9,8 @@
 
 namespace SparkplugNet.Core.Application;
 
+using System.Buffers;
+
 /// <inheritdoc cref="SparkplugBase{T}"/>
 /// <summary>
 /// A class that handles a Sparkplug application.
@@ -304,7 +306,7 @@ public abstract partial class SparkplugApplicationBase<T> : SparkplugBase<T> whe
 
             if (SparkplugMessageTopic.TryParse(topic, out var topicParsed))
             {
-                return this.OnMessageReceived(topicParsed!, args.ApplicationMessage.Payload);
+                return this.OnMessageReceived(topicParsed!, args.ApplicationMessage.Payload.ToArray());
             }
 
             else if (topic.Contains(SparkplugMessageType.StateMessage.GetDescription()))
@@ -361,20 +363,20 @@ public abstract partial class SparkplugApplicationBase<T> : SparkplugBase<T> whe
             {
                 if (this.Options.GetTlsParameters is not null)
                 {
-                    MqttClientOptionsBuilderTlsParameters? tlsParameters = this.Options.GetTlsParameters();
+                    MqttClientTlsOptions? tlsParameters = this.Options.GetTlsParameters();
 
                     if (tlsParameters is not null)
                     {
-                        builder.WithTls(tlsParameters);
+                        builder.WithTlsOptions(tlsParameters);
                     }
                     else
                     {
-                        builder.WithTls();
+                        throw new ArgumentException($"Tls is enabled without tls parameters. Delegate returned null.");
                     }
                 }
                 else
                 {
-                    builder.WithTls();
+                    throw new ArgumentException("Tls is enabled without tls parameters. Delegate is null");
                 }
             }
 
@@ -384,17 +386,18 @@ public abstract partial class SparkplugApplicationBase<T> : SparkplugBase<T> whe
             }
             else
             {
-                builder.WithWebSocketServer(this.Options.BrokerAddress, this.Options.WebSocketParameters);
-            }
-
-            if (this.Options.ProxyOptions is not null)
-            {
-                builder.WithProxy(
-                    this.Options.ProxyOptions.Address,
-                    this.Options.ProxyOptions.Username,
-                    this.Options.ProxyOptions.Password,
-                    this.Options.ProxyOptions.Domain,
-                    this.Options.ProxyOptions.BypassOnLocal);
+                if (this.Options.ProxyOptions is not null)
+                {
+                    builder.WithWebSocketServer(options =>
+                    {
+                        this.Options.WebSocketParameters.Invoke(options);
+                        options.WithProxyOptions(this.Options.ProxyOptions);
+                    });
+                }
+                else
+                {
+                    builder.WithWebSocketServer(this.Options.WebSocketParameters);
+                }
             }
 
             if (this.Options.IsPrimaryApplication)
@@ -402,7 +405,7 @@ public abstract partial class SparkplugApplicationBase<T> : SparkplugBase<T> whe
                 builder.WithWillContentType(willMessage.ContentType);
                 builder.WithWillCorrelationData(willMessage.CorrelationData);
                 builder.WithWillDelayInterval(willMessage.MessageExpiryInterval);
-                builder.WithWillPayload(willMessage.Payload);
+                builder.WithWillPayload(willMessage.Payload.ToArray());
                 builder.WithWillPayloadFormatIndicator(willMessage.PayloadFormatIndicator);
                 builder.WithWillQualityOfServiceLevel(willMessage.QualityOfServiceLevel);
                 builder.WithWillResponseTopic(willMessage.ResponseTopic);

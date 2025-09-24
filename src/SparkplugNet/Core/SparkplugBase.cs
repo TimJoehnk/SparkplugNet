@@ -64,7 +64,7 @@ public partial class SparkplugBase<T> : ISparkplugConnection where T : IMetric, 
             this.NameSpace = SparkplugNamespace.VersionB;
         }
 
-        this.Client = new MqttFactory().CreateMqttClient();
+        this.Client = new MqttClientFactory().CreateMqttClient();
         this.Logger = logger;
 
         this.MessageGenerator = new SparkplugMessageGenerator(logger);

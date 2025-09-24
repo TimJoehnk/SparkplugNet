@@ -10,7 +10,6 @@ global using System.Threading.Tasks;
 global using System.Xml.Serialization;
 
 global using MQTTnet;
-global using MQTTnet.Client;
 global using MQTTnet.Formatter;
 global using MQTTnet.Internal;
 global using MQTTnet.Protocol;

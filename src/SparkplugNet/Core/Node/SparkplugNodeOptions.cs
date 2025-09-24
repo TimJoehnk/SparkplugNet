@@ -79,7 +79,7 @@ public class SparkplugNodeOptions : SparkplugBaseOptions
         string groupIdentifier = DefaultGroupIdentifier,
         string edgeNodeIdentifier = DefaultEdgeNodeIdentifier,
         GetTlsParametersDelegate? getTlsParameters = null,
-        MqttClientOptionsBuilderWebSocketParameters? webSocketParameters = null,
+        Action<MqttClientWebSocketOptionsBuilder>? webSocketParameters = null,
         MqttClientWebSocketProxyOptions? proxyOptions = null)
         : this(brokerAddress, port, clientId, userName, password, useTls, scadaHostIdentifier,
               reconnectInterval: TimeSpan.FromSeconds(30),
@@ -120,7 +120,7 @@ public class SparkplugNodeOptions : SparkplugBaseOptions
        string groupIdentifier,
        string edgeNodeIdentifier,
        TimeSpan reconnectInterval,
-       MqttClientOptionsBuilderWebSocketParameters? webSocketParameters = null,
+       Action<MqttClientWebSocketOptionsBuilder>? webSocketParameters = null,
        MqttClientWebSocketProxyOptions? proxyOptions = null,
        SystemCancellationToken? cancellationToken = null)
        : this(brokerAddress, port, clientId, userName, password, useTls, scadaHostIdentifier,
@@ -165,7 +165,7 @@ public class SparkplugNodeOptions : SparkplugBaseOptions
         string edgeNodeIdentifier,
         TimeSpan reconnectInterval,
         GetTlsParametersDelegate? getTlsParameters = null,
-        MqttClientOptionsBuilderWebSocketParameters? webSocketParameters = null,
+        Action<MqttClientWebSocketOptionsBuilder>? webSocketParameters = null,
         MqttClientWebSocketProxyOptions? proxyOptions = null,
         SystemCancellationToken? cancellationToken = null)
         : base(brokerAddress: brokerAddress,

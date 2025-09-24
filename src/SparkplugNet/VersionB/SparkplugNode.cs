@@ -9,6 +9,8 @@
 
 namespace SparkplugNet.VersionB;
 
+using System.Buffers;
+
 /// <inheritdoc cref="SparkplugNodeBase{T}"/>
 /// <summary>
 ///   A class that handles a Sparkplug node.
@@ -89,9 +91,9 @@ public class SparkplugNode : SparkplugNodeBase<VersionBData.Metric>
     /// <param name="payload">The payload.</param>
     /// <exception cref="InvalidCastException">Thrown if the metric cast didn't work properly.</exception>
     /// <returns>A <see cref="Task"/> representing any asynchronous operation.</returns>
-    protected override async Task OnMessageReceived(SparkplugMessageTopic topic, byte[] payload)
+    protected override async Task OnMessageReceived(SparkplugMessageTopic topic, ReadOnlySequence<byte> payload)
     {
-        var payloadVersionB = PayloadHelper.Deserialize<VersionBProtoBuf.ProtoBufPayload>(payload);
+        var payloadVersionB = PayloadHelper.Deserialize<VersionBProtoBuf.ProtoBufPayload>(payload.ToArray());
 
         if (payloadVersionB is not null)
         {

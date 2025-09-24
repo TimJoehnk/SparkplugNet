@@ -9,6 +9,8 @@
 
 namespace SparkplugNet.Core.Node;
 
+using System.Buffers;
+
 /// <inheritdoc cref="SparkplugBase{T}"/>
 /// <summary>
 /// A class that handles a Sparkplug node.
@@ -145,7 +147,7 @@ public abstract partial class SparkplugNodeBase<T> : SparkplugBase<T> where T : 
     /// <param name="topic">The topic.</param>
     /// <param name="payload">The payload.</param>
     /// <returns>A <see cref="Task"/> representing any asynchronous operation.</returns>
-    protected abstract Task OnMessageReceived(SparkplugMessageTopic topic, byte[] payload);
+    protected abstract Task OnMessageReceived(SparkplugMessageTopic topic, ReadOnlySequence<byte> payload);
 
     /// <summary>
     /// Handles the client disconnection event.
@@ -289,20 +291,20 @@ public abstract partial class SparkplugNodeBase<T> : SparkplugBase<T> where T : 
         {
             if (this.Options.GetTlsParameters is not null)
             {
-                MqttClientOptionsBuilderTlsParameters? tlsParameter = this.Options.GetTlsParameters();
+                MqttClientTlsOptions? tlsParameter = this.Options.GetTlsParameters();
 
                 if (tlsParameter is not null)
                 {
-                    builder.WithTls(tlsParameter);
+                    builder.WithTlsOptions(tlsParameter);
                 }
                 else
                 {
-                    builder.WithTls();
+                    throw new ArgumentException($"Tls is enabled without tls parameters. Delegate returned null.");
                 }
             }
             else
             {
-                builder.WithTls();
+                    throw new ArgumentException("Tls is enabled without tls parameters. Delegate is null");
             }
         }
 
@@ -312,24 +314,25 @@ public abstract partial class SparkplugNodeBase<T> : SparkplugBase<T> where T : 
         }
         else
         {
-            builder.WithWebSocketServer(this.Options.BrokerAddress, this.Options.WebSocketParameters);
-        }
-
-        if (this.Options.ProxyOptions is not null)
-        {
-            builder.WithProxy(
-                this.Options.ProxyOptions.Address,
-                this.Options.ProxyOptions.Username,
-                this.Options.ProxyOptions.Password,
-                this.Options.ProxyOptions.Domain,
-                this.Options.ProxyOptions.BypassOnLocal);
+            if (this.Options.ProxyOptions is not null)
+            {
+                builder.WithWebSocketServer(options =>
+                {
+                    this.Options.WebSocketParameters.Invoke(options);
+                    options.WithProxyOptions(this.Options.ProxyOptions);
+                });
+            }
+            else
+            {
+                builder.WithWebSocketServer(this.Options.WebSocketParameters);
+            }
         }
 
         // Add the will message data.
         builder.WithWillContentType(willMessage.ContentType);
         builder.WithWillCorrelationData(willMessage.CorrelationData);
         builder.WithWillDelayInterval(willMessage.MessageExpiryInterval);
-        builder.WithWillPayload(willMessage.Payload);
+        builder.WithWillPayload(willMessage.Payload.ToArray());
         builder.WithWillPayloadFormatIndicator(willMessage.PayloadFormatIndicator);
         builder.WithWillQualityOfServiceLevel(willMessage.QualityOfServiceLevel);
         builder.WithWillResponseTopic(willMessage.ResponseTopic);

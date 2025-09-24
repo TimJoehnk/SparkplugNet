@@ -59,7 +59,7 @@ public class SparkplugApplicationOptions : SparkplugBaseOptions
         string scadaHostIdentifier = DefaultScadaHostIdentifier,
         bool isPrimaryApplication = false,
         GetTlsParametersDelegate? getTlsParameters = null,
-        MqttClientOptionsBuilderWebSocketParameters? webSocketParameters = null,
+        Action<MqttClientWebSocketOptionsBuilder>? webSocketParameters = null,
         MqttClientWebSocketProxyOptions? proxyOptions = null)
         : this(brokerAddress, port, clientId, userName, password, useTls, scadaHostIdentifier,
               reconnectInterval: TimeSpan.FromSeconds(30),
@@ -97,7 +97,7 @@ public class SparkplugApplicationOptions : SparkplugBaseOptions
         string scadaHostIdentifier,
         TimeSpan reconnectInterval,
         bool isPrimaryApplication = false,
-        MqttClientOptionsBuilderWebSocketParameters? webSocketParameters = null,
+        Action<MqttClientWebSocketOptionsBuilder>? webSocketParameters = null,
         MqttClientWebSocketProxyOptions? proxyOptions = null,
         SystemCancellationToken? cancellationToken = null)
         : this(brokerAddress, port, clientId, userName, password, useTls, scadaHostIdentifier,
@@ -139,7 +139,7 @@ public class SparkplugApplicationOptions : SparkplugBaseOptions
         TimeSpan reconnectInterval,
         bool isPrimaryApplication = false,
         GetTlsParametersDelegate? getTlsParameters = null,
-        MqttClientOptionsBuilderWebSocketParameters? webSocketParameters = null,
+        Action<MqttClientWebSocketOptionsBuilder>? webSocketParameters = null,
         MqttClientWebSocketProxyOptions? proxyOptions = null,
         SystemCancellationToken? cancellationToken = null)
         : base(brokerAddress: brokerAddress,
@@ -154,6 +154,7 @@ public class SparkplugApplicationOptions : SparkplugBaseOptions
             webSocketParameters: webSocketParameters,
             proxyOptions: proxyOptions)
     {
+        MqttClientOptionsBuilder builder = new MqttClientOptionsBuilder();
         this.IsPrimaryApplication = isPrimaryApplication;
         this.CancellationToken = cancellationToken ?? SystemCancellationToken.None;
     }
